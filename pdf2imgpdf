@@ -1,0 +1,35 @@
+#!/bin/bash
+
+IMGDIR=.pdf2imgpdfTemp
+
+# Check all required CLIs are available
+dependencies=( pdftoppm convert )
+for dependency in "${dependencies[@]}"; do
+  command -v $dependency >/dev/null 2>&1 || { echo >&2 "‘$dependency’ command is required but it’s not installed. Aborting."; exit 1; }
+done
+
+# Create a directory to hold extracted images
+if [ ! -d "$IMGDIR" ]; then
+  mkdir $IMGDIR
+else
+  rm -R ${IMGDIR:?}/*
+fi
+
+# Make sure there’s an argument provided
+if [ -z "$1" ]; then
+  echo "Error: no filename supplied."
+  exit 1
+fi
+SOURCEPDF=$1
+FILENAME=$(echo "$SOURCEPDF" | cut -f 1 -d '.')
+
+echo "Converting PDF pages to images..."
+pdftoppm -png "$SOURCEPDF" ${IMGDIR}/out
+
+echo "Converting images to PDF..."
+cd ${IMGDIR} || exit 1
+convert $( ls ) "../${FILENAME}-img.pdf"
+cd ../ || exit 1
+
+# Tidy up, removing generated images
+rm -R $IMGDIR
