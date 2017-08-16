@@ -1,6 +1,5 @@
 #!/bin/bash
 
-IMGDIR=.pdf2imgpdfTemp
 print_color () { tput sgr 0 1; tput bold; printf "$1"; tput sgr0; }
 println_color () { print_color "$1"; printf "\n"; }
 
@@ -21,6 +20,51 @@ print_help () {
   printf "        pdf2imgpdf -o . -s -processed my-document.pdf \n\n\n"
 }
 
+process_pdf () {
+  # Make sure there’s an argument provided
+  if [ -z "$1" ]; then
+    echo "Error: no filename supplied."
+    exit 1
+  fi
+
+  SOURCEFILE=$1
+
+  # Make sure the file is a PDF
+  FILETYPE="$(file --mime-type -b "$SOURCEFILE")"
+  if [ ! "$FILETYPE" == "$MIMETYPE" ]; then
+    echo "$SOURCEFILE is not a PDF file."
+  fi
+
+  # Create a directory to hold extracted images
+  if [ ! -d "$IMGDIR" ]; then
+    mkdir "$IMGDIR"
+  else
+    rm -R "${IMGDIR:?}/*"
+  fi
+
+  # Get file name from input path
+  FILE="${SOURCEFILE##*/}"                      # remove path
+  FILENAME=$(echo "$FILE" | cut -f 1 -d '.')    # remove extension
+
+  println_color "$FILE"
+  echo "    Converting PDF pages to images..."
+  pdftoppm -png "$SOURCEFILE" "${IMGDIR}/out"
+
+  echo "    Converting images to PDF..."
+  cd "$IMGDIR" || exit 1
+  convert $( ls ) "../${OUTDIR}/${PREFIX}${FILENAME}${SUFFIX}.pdf"
+  cd ../ || exit 1
+
+  # Tidy up, removing generated images
+  rm -R "$IMGDIR"
+}
+
+VERSION="1.1.0"
+IMGDIR=".pdf2imgpdfTemp"
+OUTDIR="img-pdfs"
+PREFIX=""
+SUFFIX=""
+MIMETYPE="application/pdf"
 
 # Check all required CLIs are available
 dependencies=( pdftoppm convert )
@@ -28,28 +72,40 @@ for dependency in "${dependencies[@]}"; do
   command -v $dependency >/dev/null 2>&1 || { echo >&2 "‘$dependency’ command is required but it’s not installed. Aborting."; exit 1; }
 done
 
-# Create a directory to hold extracted images
-if [ ! -d "$IMGDIR" ]; then
-  mkdir $IMGDIR
-else
-  rm -R ${IMGDIR:?}/*
-fi
+while getopts "o:p:s:vh" opt; do
+  case ${opt} in
+    o) OUTDIR="$OPTARG" ;;
+    p) PREFIX="$OPTARG" ;;
+    s) SUFFIX="$OPTARG" ;;
+    v) echo "$VERSION" >&1; exit ;;
+    h) print_help; exit ;;
+    :) echo "Error: option -$OPTARG requires an argument." >&2; exit 1 ;;
+    \?) echo "Try 'pdf2imgpdf -h' for more information." >&2; exit 1 ;;
+  esac
+done
+
+shift $((OPTIND-1))
 
 # Make sure there’s an argument provided
 if [ -z "$1" ]; then
-  echo "Error: no filename supplied."
+  echo "Error: no filename or directory supplied."
   exit 1
 fi
-SOURCEPDF=$1
-FILENAME=$(echo "$SOURCEPDF" | cut -f 1 -d '.')
 
-echo "Converting PDF pages to images..."
-pdftoppm -png "$SOURCEPDF" ${IMGDIR}/out
+ARG=$1
 
-echo "Converting images to PDF..."
-cd ${IMGDIR} || exit 1
-convert $( ls ) "../${FILENAME}-img.pdf"
-cd ../ || exit 1
+# Create a directory to hold output PDFs
+if [ ! -d "$OUTDIR" ]; then
+  mkdir "$OUTDIR"
+fi
 
-# Tidy up, removing generated images
-rm -R $IMGDIR
+if [[ -d "$ARG" ]]; then
+  for file in $ARG/*.pdf; do
+    process_pdf "$file"
+  done
+elif [[ -f $ARG ]]; then
+  process_pdf "$ARG"
+else
+  echo "Error: $ARG is not a file or a directory."
+  exit 1
+fi
