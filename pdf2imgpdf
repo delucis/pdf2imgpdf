@@ -10,6 +10,7 @@ print_help () {
   printf "  -h                display this help message\n"
   printf "  -o directory      the name of the directory to save your ouput PDFs to (default: img-pdfs)\n"
   printf "  -p prefix         a prefix to add to the filename of your output PDFs\n"
+  printf "  -r resolution     image resolution, in DPI (default: 150)\n"
   printf "  -s suffix         a suffix to add to the filename of your output PDFs\n"
   printf "  -v                print the current version number to the Terminal window\n\n"
   println_color "Examples:"
@@ -18,6 +19,8 @@ print_help () {
   printf "        pdf2imgpdf -o new-pdfs -p \"Copy of \" old-pdfs \n\n\n"
   printf "  Process 'my-document.pdf', saving it to the current directory with the suffix '-processed':\n\n"
   printf "        pdf2imgpdf -o . -s -processed my-document.pdf \n\n\n"
+  printf "  Create a very low resolution, pixelated copy of 'my-document.pdf':\n\n"
+  printf "        pdf2imgpdf -r 10 my-document.pdf \n\n\n"
 }
 
 process_pdf () {
@@ -48,7 +51,7 @@ process_pdf () {
 
   println_color "$FILE"
   echo "    Converting PDF pages to images..."
-  pdftoppm -png "$SOURCEFILE" "${IMGDIR}/out"
+  pdftoppm -png -r "$RESOLUTION" "$SOURCEFILE" "${IMGDIR}/out"
 
   echo "    Converting images to PDF..."
   cd "$IMGDIR" || exit 1
@@ -67,6 +70,7 @@ OUTDIR="img-pdfs"
 PREFIX=""
 SUFFIX=""
 MIMETYPE="application/pdf"
+RESOLUTION=150
 
 # Check all required CLIs are available
 dependencies=( pdftoppm convert )
@@ -74,10 +78,11 @@ for dependency in "${dependencies[@]}"; do
   command -v $dependency >/dev/null 2>&1 || { echo >&2 "‘$dependency’ command is required but it’s not installed. Aborting."; exit 1; }
 done
 
-while getopts "o:p:s:vh" opt; do
+while getopts "o:p:r:s:vh" opt; do
   case ${opt} in
     o) OUTDIR="$OPTARG" ;;
     p) PREFIX="$OPTARG" ;;
+    r) RESOLUTION="$OPTARG" ;;
     s) SUFFIX="$OPTARG" ;;
     v) echo "$VERSION" >&1; exit ;;
     h) print_help; exit ;;
