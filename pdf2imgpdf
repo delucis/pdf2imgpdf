@@ -4,6 +4,23 @@ IMGDIR=.pdf2imgpdfTemp
 print_color () { tput sgr 0 1; tput bold; printf "$1"; tput sgr0; }
 println_color () { print_color "$1"; printf "\n"; }
 
+print_help () {
+  println_color "Usage:"
+  printf "  pdf2imgpdf [options ...] file|directory \n\n"
+  println_color "Options:"
+  printf "  -h                display this help message\n"
+  printf "  -o directory      the name of the directory to save your ouput PDFs to (default: img-pdfs)\n"
+  printf "  -p prefix         a prefix to add to the filename of your output PDFs\n"
+  printf "  -s suffix         a suffix to add to the filename of your output PDFs\n"
+  printf "  -v                print the current version number to the Terminal window\n\n"
+  println_color "Examples:"
+  printf "  Process all the PDFs in the directory 'old-pdfs', saving them to the directory 'new-pdfs'\n"
+  printf "  with the prefix 'Copy of ' in front of their original file name:\n\n"
+  printf "        pdf2imgpdf -o new-pdfs -p \"Copy of \" old-pdfs \n\n\n"
+  printf "  Process 'my-document.pdf', saving it to the current directory with the suffix '-processed':\n\n"
+  printf "        pdf2imgpdf -o . -s -processed my-document.pdf \n\n\n"
+}
+
 
 # Check all required CLIs are available
 dependencies=( pdftoppm convert )
