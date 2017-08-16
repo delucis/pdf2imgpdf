@@ -92,20 +92,20 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-ARG=$1
+TARGET=$1
 
 # Create a directory to hold output PDFs
 if [ ! -d "$OUTDIR" ]; then
   mkdir "$OUTDIR"
 fi
 
-if [[ -d "$ARG" ]]; then
-  for file in $ARG/*.pdf; do
+if [[ -d "$TARGET" ]]; then
+  for file in $TARGET/*.pdf; do
     process_pdf "$file"
   done
-elif [[ -f $ARG ]]; then
-  process_pdf "$ARG"
+elif [[ -f $TARGET ]]; then
+  process_pdf "$TARGET"
 else
-  echo "Error: $ARG is not a file or a directory."
+  echo "Error: $TARGET is not a file or a directory."
   exit 1
 fi
