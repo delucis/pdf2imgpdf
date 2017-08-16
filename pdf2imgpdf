@@ -57,6 +57,8 @@ process_pdf () {
 
   # Tidy up, removing generated images
   rm -R "$IMGDIR"
+
+  echo "    Saved converted PDF as '${OUTDIR}/${PREFIX}${FILENAME}${SUFFIX}.pdf'"
 }
 
 VERSION="1.1.0"
