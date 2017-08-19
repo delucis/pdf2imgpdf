@@ -66,7 +66,9 @@ process_pdf () {
   FILE="${SOURCEFILE##*/}"                      # remove path
   FILENAME=$(echo "$FILE" | cut -f 1 -d '.')    # remove extension
 
-  println_color "$FILE"
+  FILESIZE=$(filesize "$SOURCEFILE")
+
+  print_color "$FILE"; printf " ($FILESIZE)\n"
   echo "    Converting PDF pages to images..."
   pdftoppm -png -r "$RESOLUTION" "$SOURCEFILE" "${IMGDIR}/out"
 
