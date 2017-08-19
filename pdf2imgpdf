@@ -23,6 +23,23 @@ print_help () {
   printf "        pdf2imgpdf -r 10 my-document.pdf \n\n\n"
 }
 
+filesize () {
+  local bytes
+  bytes="$(ls -nl "$1" | awk '{print $5}')"
+  local unit="b"
+  if [[ bytes -gt 1000000000 ]]; then
+    bytes=$(echo "scale=2; $bytes/1000000000" | bc)
+    unit="GB"
+  elif [[ bytes -gt 1000000 ]]; then
+    bytes=$(echo "scale=2; $bytes/1000000" | bc)
+    unit="MB"
+  elif [[ bytes -gt 1000 ]]; then
+    bytes=$(echo "scale=1; $bytes/1000" | bc)
+    unit="kB"
+  fi
+  echo "$bytes $unit"
+}
+
 process_pdf () {
   # Make sure there’s an argument provided
   if [ -z "$1" ]; then
