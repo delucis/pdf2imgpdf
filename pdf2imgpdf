@@ -54,9 +54,8 @@ process_pdf () {
   pdftoppm -png -r "$RESOLUTION" "$SOURCEFILE" "${IMGDIR}/out"
 
   echo "    Converting images to PDF..."
-  cd "$IMGDIR" || exit 1
-  convert $( ls ) "../${OUTDIR}/${PREFIX}${FILENAME}${SUFFIX}.pdf"
-  cd ../ || exit 1
+  OUTFILE="${OUTDIR}/${PREFIX}${FILENAME}${SUFFIX}.pdf"
+  convert $IMGDIR/* "$OUTFILE"
 
   # Tidy up, removing generated images
   rm -R "$IMGDIR"
