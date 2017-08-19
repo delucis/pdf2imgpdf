@@ -79,7 +79,8 @@ process_pdf () {
   # Tidy up, removing generated images
   rm -R "$IMGDIR"
 
-  echo "    Saved converted PDF as '${OUTDIR}/${PREFIX}${FILENAME}${SUFFIX}.pdf'"
+  OUTFILESIZE=$(filesize "$OUTFILE")
+  echo "    Saved converted PDF as '$OUTFILE' ($OUTFILESIZE)"
 }
 
 VERSION="1.2.0"
