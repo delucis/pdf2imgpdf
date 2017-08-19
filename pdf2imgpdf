@@ -106,7 +106,7 @@ if [ ! -d "$OUTDIR" ]; then
 fi
 
 if [[ -d "$TARGET" ]]; then
-  for file in $TARGET/*.pdf; do
+  for file in "$TARGET"/*.pdf; do
     process_pdf "$file"
   done
 elif [[ -f $TARGET ]]; then
