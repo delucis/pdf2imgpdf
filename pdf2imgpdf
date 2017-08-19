@@ -83,7 +83,7 @@ process_pdf () {
   echo "    Saved converted PDF as '$OUTFILE' ($OUTFILESIZE)"
 }
 
-VERSION="1.2.0"
+VERSION="1.3.0"
 IMGDIR=".pdf2imgpdfTemp-$RANDOM"
 OUTDIR="img-pdfs"
 PREFIX=""
