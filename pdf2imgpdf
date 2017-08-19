@@ -64,7 +64,7 @@ process_pdf () {
 }
 
 VERSION="1.2.0"
-IMGDIR=".pdf2imgpdfTemp"
+IMGDIR=".pdf2imgpdfTemp-$RANDOM"
 OUTDIR="img-pdfs"
 PREFIX=""
 SUFFIX=""
